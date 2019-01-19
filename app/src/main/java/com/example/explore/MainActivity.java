@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     static class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private AbstractFragment[] fragments = { new GeneralFragment(), new SensorFragment() };
+        private AbstractFragment[] fragments = { new GeneralFragment(), new BuildFragment() };
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
