@@ -1,4 +1,4 @@
-package com.example.explore;
+package com.tamalnath.explore;
 
 import org.junit.Test;
 
