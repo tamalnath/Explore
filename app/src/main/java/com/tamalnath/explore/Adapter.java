@@ -15,11 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int TYPE_HEADER = 1;
-    private static final int TYPE_BUTTON = 2;
-    private static final int TYPE_KEY_VALUE = 3;
+    static final int TYPE_HEADER = 1;
+    static final int TYPE_BUTTON = 2;
+    static final int TYPE_KEY_VALUE = 3;
 
-    private List<TypedData> dataList = new ArrayList<>();
+    private List<Decorator> list = new ArrayList<>();
 
     @NonNull
     @Override
@@ -39,85 +39,69 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        dataList.get(position).decorate(holder, position);
+        list.get(position).decorate(holder);
     }
 
     @Override
     public int getItemCount() {
-        return dataList.size();
+        return list.size();
     }
 
     @Override
     public int getItemViewType(int position) {
-        return dataList.get(position).getViewType();
+        return list.get(position).getViewType();
     }
 
-    void addHeader(String header) {
-        addHeader(header, null);
+    void add(Decorator decorator) {
+        list.add(decorator);
     }
 
-    void addHeader(final String header, final Data data) {
-        dataList.add(new TypedData() {
-
-            public int getViewType() {
-                return TYPE_HEADER;
+    void addHeader(final String header) {
+        list.add(new Decorator() {
+            @Override
+            public void decorate(RecyclerView.ViewHolder holder) {
+                ((TextView) holder.itemView).setText(header);
             }
 
             @Override
-            public void decorate(RecyclerView.ViewHolder holder, int position) {
-                ((TextView) holder.itemView).setText(header);
-                if (data != null) {
-                    data.decorate(holder, position);
-                }
+            public int getViewType() {
+                return TYPE_HEADER;
             }
         });
     }
 
-    void addButton(String button, View.OnClickListener listener) {
-        addButton(button, listener, null);
-    }
-
-    void addButton(final String button, final View.OnClickListener listener, final Data data) {
-        dataList.add(new TypedData() {
+    void addButton(final String button, final View.OnClickListener listener) {
+        list.add(new Decorator() {
+            @Override
+            public void decorate(RecyclerView.ViewHolder holder) {
+                ((Button) holder.itemView).setText(button);
+                holder.itemView.setOnClickListener(listener);
+            }
 
             @Override
             public int getViewType() {
                 return TYPE_BUTTON;
             }
 
-            @Override
-            public void decorate(RecyclerView.ViewHolder holder, int position) {
-                ((Button) holder.itemView).setText(button);
-                holder.itemView.setOnClickListener(listener);
-                if (data != null) {
-                    data.decorate(holder, position);
-                }
-            }
         });
     }
 
     void addMap(Map<?, ?> map) {
-        addMap(map, null);
-    }
-
-    void addMap(Map<?, ?> map, final Data data) {
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
-            dataList.add(new TypedData() {
+            list.add(new Decorator() {
+
+                @Override
+                public void decorate(RecyclerView.ViewHolder viewHolder) {
+                    KeyValueHolder holder = (KeyValueHolder) viewHolder;
+                    holder.keyView.setText(Utils.toString(entry.getKey()));
+                    holder.valueView.setText(Utils.toString(entry.getValue(), "\n", "", "", null));
+                }
 
                 @Override
                 public int getViewType() {
                     return TYPE_KEY_VALUE;
                 }
 
-                @Override
-                public void decorate(RecyclerView.ViewHolder viewHolder, int position) {
-                    KeyValueHolder holder = (KeyValueHolder) viewHolder;
-                    holder.keyView.setText(Utils.toString(entry.getKey()));
-                    holder.valueView.setText(Utils.toString(entry.getValue(), "\n", "", "", null));
-                    if (data != null) {
-                        data.decorate(holder, position);
-                    }
-                }
             });
         }
     }
@@ -141,11 +125,9 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    interface Data {
-        void decorate(RecyclerView.ViewHolder viewHolder, int position);
-    }
-
-    interface TypedData extends Data {
+    interface Decorator {
+        void decorate(RecyclerView.ViewHolder viewHolder);
         int getViewType();
     }
+
 }

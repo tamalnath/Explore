@@ -36,8 +36,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Floating Action Button clicked", Snackbar.LENGTH_SHORT)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Floating Action Button clicked", Snackbar.LENGTH_SHORT).setAction("Action", null).show();
             }
         });
 
@@ -64,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
     static class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private AbstractFragment[] fragments = { new GeneralFragment(), new BuildFragment() };
+        private AbstractFragment[] fragments = { new GeneralFragment(), new BuildFragment(), new FontsFragment() };
 
         SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
