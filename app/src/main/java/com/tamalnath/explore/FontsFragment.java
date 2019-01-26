@@ -3,30 +3,40 @@ package com.tamalnath.explore;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.io.File;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class FontsFragment extends AbstractFragment implements Adapter.Decorator,
         CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, TextWatcher {
 
-    private Map<String, Typeface> fonts = new TreeMap<>();
+    private static final String TAG = "FontsFragment";
+
+    private Map<String, Typeface> fonts;
+
     private Switch bold;
     private Switch italic;
     private SeekBar size;
     private EditText sampleText;
 
+    @SuppressWarnings("unchecked")
     public FontsFragment() {
-        for (final File fontFile : new File("/system/fonts").listFiles()) {
-            String fontName = fontFile.getName().split("\\.")[0];
-            Typeface typeface = Typeface.createFromFile(fontFile);
-            fonts.put(fontName, typeface);
+        try {
+            String fieldName = "sSystemFontMap";
+            Field field = Typeface.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            fonts = new TreeMap((Map<String, Typeface>) field.get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.e(TAG, e.getMessage(), e);
+            fonts = Utils.findConstants(Typeface.class, Typeface.class, null);
         }
         draw();
     }
@@ -34,21 +44,27 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
     private void draw() {
         adapter.list.clear();
         adapter.list.add(this);
+
+        final int style = getStyle();
         for (final Map.Entry<String, Typeface> entry : fonts.entrySet()) {
             final Typeface typeface = entry.getValue();
-            if ((bold != null && bold.isChecked() != typeface.isBold())
-                    || (italic != null && italic.isChecked() != typeface.isItalic())) {
-                continue;
-            }
             adapter.list.add(new Adapter.Decorator() {
                 @Override
                 public void decorate(Adapter.ViewHolder holder) {
                     TextView keyView = holder.itemView.findViewById(R.id.key);
                     TextView valueView = holder.itemView.findViewById(R.id.value);
                     keyView.setText(entry.getKey());
-                    valueView.setTypeface(typeface);
-                    valueView.setText(sampleText.getText());
-                    valueView.setTextSize(size.getProgress() + 8);
+                    valueView.setTypeface(Typeface.create(typeface, style));
+                    if (sampleText == null) {
+                        valueView.setText(R.string.font_sample);
+                    } else {
+                        valueView.setText(sampleText.getText());
+                    }
+                    if (size == null) {
+                        valueView.setTextSize(8);
+                    } else {
+                        valueView.setTextSize(size.getProgress() + 8);
+                    }
                 }
 
                 @Override
@@ -56,16 +72,24 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
                     return R.layout.view_key_value;
                 }
             });
+            adapter.notifyItemRangeChanged(1, fonts.size());
         }
         adapter.notifyDataSetChanged();
     }
 
+    private int getStyle() {
+        int boldStyle = (bold != null && bold.isChecked()) ? 0x1 : 0x0;
+        int italicStyle = (italic != null && italic.isChecked()) ? 0x2 : 0x0;
+        return boldStyle | italicStyle;
+    }
+
     @Override
     public void decorate(Adapter.ViewHolder viewHolder) {
-        bold = viewHolder.itemView.findViewById(R.id.bold);
-        italic = viewHolder.itemView.findViewById(R.id.italic);
-        size = viewHolder.itemView.findViewById(R.id.size);
-        sampleText = viewHolder.itemView.findViewById(R.id.sample);
+        View parent = viewHolder.itemView;
+        bold = parent.findViewById(R.id.bold);
+        italic = parent.findViewById(R.id.italic);
+        size = parent.findViewById(R.id.size);
+        sampleText = parent.findViewById(R.id.sample);
 
         bold.setOnCheckedChangeListener(this);
         italic.setOnCheckedChangeListener(this);
@@ -112,4 +136,5 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
     public void afterTextChanged(Editable s) {
         // Don't do anything
     }
+
 }
