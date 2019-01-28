@@ -241,7 +241,10 @@ final class Utils {
             }
             map.put(key, array);
         } else {
-            map.put(key, findConstant(classType, value, regex));
+            value = findConstant(classType, value, regex);
+            if (value != null) {
+                map.put(key, value);
+            }
         }
     }
 }

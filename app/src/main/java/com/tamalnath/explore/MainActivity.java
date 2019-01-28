@@ -15,6 +15,9 @@ import androidx.viewpager.widget.ViewPager;
 
 public class MainActivity extends AppCompatActivity {
 
+    static final String DETAILS = "com.tamalnath.explore.DETAILS";
+    static final String DETAILS_LOCATION = "LOCATION";
+
     private ViewPager viewPager;
 
     @Override
@@ -25,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        String details = getIntent().getStringExtra(DETAILS);
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager(), details);
         viewPager = findViewById(R.id.container);
         viewPager.setAdapter(sectionsPagerAdapter);
     }
@@ -51,10 +55,15 @@ public class MainActivity extends AppCompatActivity {
 
     static class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        private AbstractFragment[] fragments = { new GeneralFragment(), new BuildFragment(), new FontsFragment() };
+        private AbstractFragment[] fragments = {
+                new GeneralFragment(),
+                new BuildFragment(),
+                new FontsFragment(),
+                new LocationFragment()
+        };
 
-        SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+        SectionsPagerAdapter(FragmentManager supportFragmentManager, String details) {
+            super(supportFragmentManager);
         }
 
         @Override

@@ -70,24 +70,28 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         });
     }
 
+    void addKeyValue(final Object key, final Object value) {
+        list.add(new Decorator() {
+
+            @Override
+            public void decorate(ViewHolder viewHolder) {
+                TextView keyView = viewHolder.itemView.findViewById(R.id.key);
+                TextView valueView = viewHolder.itemView.findViewById(R.id.value);
+                keyView.setText(Utils.toString(key));
+                valueView.setText(Utils.toString(value, "\n", "", "", null));
+            }
+
+            @Override
+            public int getViewType() {
+                return R.layout.view_key_value;
+            }
+
+        });
+    }
+
     void addMap(Map<?, ?> map) {
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
-            list.add(new Decorator() {
-
-                @Override
-                public void decorate(ViewHolder viewHolder) {
-                    TextView keyView = viewHolder.itemView.findViewById(R.id.key);
-                    TextView valueView = viewHolder.itemView.findViewById(R.id.value);
-                    keyView.setText(Utils.toString(entry.getKey()));
-                    valueView.setText(Utils.toString(entry.getValue(), "\n", "", "", null));
-                }
-
-                @Override
-                public int getViewType() {
-                    return R.layout.view_key_value;
-                }
-
-            });
+            addKeyValue(entry.getKey(), entry.getValue());
         }
     }
 

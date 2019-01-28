@@ -7,10 +7,13 @@ import java.util.Map;
 public class BuildFragment extends AbstractFragment {
 
     private static final Map<String, Object> BUILD = Utils.findConstants(Build.class, null, null);
+    private static final Map<String, Object> VERSION = Utils.findConstants(Build.VERSION.class, null, null);
 
     public BuildFragment() {
         adapter.addHeader("Build");
         adapter.addMap(BUILD);
+        adapter.addHeader("Version");
+        adapter.addMap(VERSION);
         adapter.addHeader("Environment variables");
         adapter.addMap(System.getenv());
         adapter.addHeader("System Properties");
