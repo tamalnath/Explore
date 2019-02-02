@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 
 import androidx.annotation.Nullable;
 
-final class Utils {
+public final class Utils {
 
     private static final String TAG = "Utils";
 
@@ -23,7 +23,7 @@ final class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    static <T> Map<String, T> findConstants(Class<?> classType, @Nullable Class<T> fieldType, @Nullable String regex) {
+    public static <T> Map<String, T> findConstants(Class<?> classType, @Nullable Class<T> fieldType, @Nullable String regex) {
         Map<String, T> map = new TreeMap<>();
         Pattern pattern = regex == null ? null : Pattern.compile(regex);
         for (Field field : classType.getDeclaredFields()) {

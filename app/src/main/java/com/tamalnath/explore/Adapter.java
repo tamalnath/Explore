@@ -4,6 +4,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -93,6 +95,29 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
             addKeyValue(entry.getKey(), entry.getValue());
         }
+    }
+
+    void addTable(final List<List<Object>> table) {
+        list.add(new Adapter.Decorator() {
+            @Override
+            public void decorate(Adapter.ViewHolder viewHolder) {
+                TableLayout layout = (TableLayout) viewHolder.itemView;
+                for (List<Object> list : table) {
+                    TableRow row = new TableRow(layout.getContext());
+                    layout.addView(row);
+                    for (Object item : list) {
+                        TextView textView = new TextView(row.getContext());
+                        textView.setText(Utils.toString(item));
+                        row.addView(textView);
+                    }
+                }
+            }
+
+            @Override
+            public int getViewType() {
+                return R.layout.view_table;
+            }
+        });
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

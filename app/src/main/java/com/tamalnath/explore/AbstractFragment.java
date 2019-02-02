@@ -10,11 +10,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-abstract class AbstractFragment extends Fragment {
+public abstract class AbstractFragment extends Fragment {
 
-    Adapter adapter = new Adapter();
+    protected Adapter adapter = new Adapter();
 
-    String title = getClass().getSimpleName().split("Fragment")[0];
+    public String title = getClass().getSimpleName().split("Fragment")[0];
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

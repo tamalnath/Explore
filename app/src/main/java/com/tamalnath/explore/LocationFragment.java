@@ -2,20 +2,27 @@ package com.tamalnath.explore;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -23,7 +30,6 @@ import androidx.fragment.app.FragmentActivity;
 
 public class LocationFragment extends AbstractFragment implements View.OnClickListener {
 
-    private static final String TAG = "LocationFragment";
     private FragmentActivity activity;
 
     @Override
@@ -34,19 +40,35 @@ public class LocationFragment extends AbstractFragment implements View.OnClickLi
         }
         adapter.list.clear();
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
+        Map<String, Map<String, Object>> mapOfMaps = new TreeMap<>();
         List<String> names = locationManager.getAllProviders();
+        Set<String> keys = new TreeSet<>();
         for (String name : names) {
-            adapter.addHeader(name);
             LocationProvider provider = locationManager.getProvider(name);
             Map<String, Object> map = Utils.findProperties(provider, "(?:get|is|has|requires|supports)(.*)");
             Utils.expand(map, "Accuracy", Criteria.class, "ACCURACY_(.+)");
             Utils.expand(map, "PowerRequirement", Criteria.class, "POWER_(.+)");
-            map.remove("Name");
-            adapter.addMap(map);
+            keys.addAll(map.keySet());
+            mapOfMaps.put(name, map);
         }
+        List<List<Object>> table = new ArrayList<>();
+        List<Object> list = new ArrayList<>();
+        list.add("");
+        list.addAll(names);
+        table.add(list);
+        for (String key : keys) {
+            list = new ArrayList<>();
+            list.add(key);
+            for (String name : names) {
+                list.add(mapOfMaps.get(name).get(key));
+            }
+            table.add(list);
+        }
+        adapter.addTable(table);
         adapter.addButton(getString(R.string.details), this);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
+
 
     @Override
     public void onClick(View v) {
@@ -78,7 +100,7 @@ public class LocationFragment extends AbstractFragment implements View.OnClickLi
     }
 
     private void launch() {
-        Log.d(TAG, "TODO: show location.");
+        Intent intent = new Intent();
     }
 
 }

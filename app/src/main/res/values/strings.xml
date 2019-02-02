@@ -7,7 +7,6 @@
 
     <string name="font_bold">Bold</string>
     <string name="font_italic">Italic</string>
-    <string name="font_size">Size</string>
     <string name="font_sample">The quick brown fox jumps over the lazy dog.</string>
 
     <string name="fragment_battery">Battery</string>
