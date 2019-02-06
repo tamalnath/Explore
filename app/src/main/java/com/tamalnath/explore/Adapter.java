@@ -1,9 +1,11 @@
 package com.tamalnath.explore;
 
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -11,6 +13,8 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -95,6 +99,47 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         for (final Map.Entry<?, ?> entry : map.entrySet()) {
             addKeyValue(entry.getKey(), entry.getValue());
         }
+    }
+
+    void addTable(final Map<String, Map<String, Object>> mapOfMaps) {
+        list.add(new Adapter.Decorator() {
+            @Override
+            public void decorate(Adapter.ViewHolder viewHolder) {
+                HorizontalScrollView scroll = (HorizontalScrollView) viewHolder.itemView;
+                TableLayout layout = scroll.findViewById(R.id.table);
+                Set<String> keys = new TreeSet<>();
+                for (Map<String, Object> map : mapOfMaps.values()) {
+                    keys.addAll(map.keySet());
+                }
+                TableRow row = new TableRow(layout.getContext());
+                layout.addView(row);
+                row.addView(new TextView(row.getContext()));
+                for (String key : mapOfMaps.keySet()) {
+                    TextView textView = new TextView(row.getContext());
+                    textView.setText(key);
+                    textView.setTypeface(Typeface.DEFAULT_BOLD);
+                    row.addView(textView);
+                }
+                for (String key : keys) {
+                    row = new TableRow(layout.getContext());
+                    layout.addView(row);
+                    TextView textView = new TextView(row.getContext());
+                    textView.setText(key);
+                    textView.setTypeface(Typeface.DEFAULT_BOLD);
+                    row.addView(textView);
+                    for (Map<String, Object> map : mapOfMaps.values()) {
+                        textView = new TextView(row.getContext());
+                        textView.setText(Utils.toString(map.get(key)));
+                        row.addView(textView);
+                    }
+                }
+            }
+
+            @Override
+            public int getViewType() {
+                return R.layout.view_table;
+            }
+        });
     }
 
     void addTable(final List<List<Object>> table) {

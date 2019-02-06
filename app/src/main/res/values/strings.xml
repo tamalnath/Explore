@@ -23,4 +23,8 @@
 
     <string name="sensor_unit_deg">&#176;</string>
 
+    <string name="network_upstream_bandwidth">Bandwidth (upstream)</string>
+    <string name="network_downstream_bandwidth">Bandwidth (downstream)</string>
+    <string name="network_transport">Transport</string>
+
 </resources>

@@ -11,9 +11,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -42,29 +39,14 @@ public class LocationFragment extends AbstractFragment implements View.OnClickLi
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
         Map<String, Map<String, Object>> mapOfMaps = new TreeMap<>();
         List<String> names = locationManager.getAllProviders();
-        Set<String> keys = new TreeSet<>();
         for (String name : names) {
             LocationProvider provider = locationManager.getProvider(name);
             Map<String, Object> map = Utils.findProperties(provider, "(?:get|is|has|requires|supports)(.*)");
             Utils.expand(map, "Accuracy", Criteria.class, "ACCURACY_(.+)");
             Utils.expand(map, "PowerRequirement", Criteria.class, "POWER_(.+)");
-            keys.addAll(map.keySet());
             mapOfMaps.put(name, map);
         }
-        List<List<Object>> table = new ArrayList<>();
-        List<Object> list = new ArrayList<>();
-        list.add("");
-        list.addAll(names);
-        table.add(list);
-        for (String key : keys) {
-            list = new ArrayList<>();
-            list.add(key);
-            for (String name : names) {
-                list.add(mapOfMaps.get(name).get(key));
-            }
-            table.add(list);
-        }
-        adapter.addTable(table);
+        adapter.addTable(mapOfMaps);
         adapter.addButton(getString(R.string.details), this);
         return super.onCreateView(inflater, container, savedInstanceState);
     }

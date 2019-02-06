@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 public abstract class AbstractFragment extends Fragment {
 
-    protected Adapter adapter = new Adapter();
+    Adapter adapter = new Adapter();
 
-    public String title = getClass().getSimpleName().split("Fragment")[0];
+    String title = getClass().getSimpleName().split("Fragment")[0];
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
