@@ -1,30 +1,23 @@
 package com.tamalnath.explore;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.telephony.CellInfo;
 import android.telephony.CellLocation;
 import android.telephony.NeighboringCellInfo;
 import android.telephony.TelephonyManager;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-
 public class TelephonyFragment extends AbstractFragment {
 
-    @Override
     @SuppressWarnings("unchecked")
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    void refresh() {
         Context context = getContext();
         if (context == null) {
-            return null;
+            return;
         }
         adapter.list.clear();
         TelephonyManager telephonyManager = (TelephonyManager) getContext().getSystemService(Context.TELEPHONY_SERVICE);
@@ -107,7 +100,5 @@ public class TelephonyFragment extends AbstractFragment {
             adapter.addHeader(getString(R.string.telephony_neighboring_cell_info));
             adapter.addTable(list);
         }
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
-
 }

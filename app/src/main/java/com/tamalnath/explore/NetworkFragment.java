@@ -6,17 +6,10 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.ProxyInfo;
 import android.os.Build;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
-import androidx.annotation.NonNull;
 
 public class NetworkFragment extends AbstractFragment {
 
@@ -24,10 +17,10 @@ public class NetworkFragment extends AbstractFragment {
     private static final Map<String, Integer> TRANSPORT = Utils.findConstants(NetworkCapabilities.class, int.class, "TRANSPORT_(.+)");
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    void refresh() {
         Context context = getContext();
         if (context == null) {
-            return null;
+            return;
         }
         adapter.list.clear();
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -62,7 +55,5 @@ public class NetworkFragment extends AbstractFragment {
                 adapter.addMap(Utils.findProperties(proxyInfo));
             }
         }
-        return super.onCreateView(inflater, container, savedInstanceState);
     }
-
 }

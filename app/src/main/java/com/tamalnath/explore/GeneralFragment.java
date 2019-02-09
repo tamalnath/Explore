@@ -3,19 +3,28 @@ package com.tamalnath.explore;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 public class GeneralFragment extends AbstractFragment {
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        adapter.list.clear();
+    void refresh() {
+        grantPermissions();
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Context context = getContext();
         if (context != null) {
@@ -24,7 +33,53 @@ public class GeneralFragment extends AbstractFragment {
                 addBatteryDetails(batteryStatus);
             }
         }
-        return super.onCreateView(inflater, container, savedInstanceState);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void grantPermissions() {
+        adapter.addHeader("Permissions");
+        String[] permissions;
+        try {
+            permissions = getContext().getPackageManager()
+                    .getPackageInfo(getContext().getPackageName(), PackageManager.GET_PERMISSIONS)
+                    .requestedPermissions;
+        } catch (PackageManager.NameNotFoundException e) {
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Map<String, String> map = new TreeMap<>();
+        List<String> deniedPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            int p = ActivityCompat.checkSelfPermission(getContext(), permission);
+            String grant = "Granted";
+            if (p == PackageManager.PERMISSION_DENIED) {
+                grant = "Denied";
+                deniedPermissions.add(permission);
+            }
+            map.put(permission.substring(19), grant);
+        }
+        adapter.addMap(map);
+        if (!deniedPermissions.isEmpty()) {
+            String[] denied = deniedPermissions.toArray(new String[0]);
+            ActivityCompat.requestPermissions(getActivity(), denied, this.getId() & 0xFFFF);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if ((this.getId() & 0xFFFF) != requestCode) {
+            String message = getString(R.string.permission_denied, Arrays.toString(permissions));
+            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+        List<String> deniedPermissions = new ArrayList<>();
+        for (int i = 0; i <= permissions.length; i++) {
+            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                deniedPermissions.add(permissions[i].substring(19));
+            }
+        }
+        String message = getString(R.string.permission_denied, Utils.toString(deniedPermissions, ", ", null, null, null));
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     private void addBatteryDetails(Intent batteryStatus) {

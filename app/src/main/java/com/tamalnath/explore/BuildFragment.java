@@ -2,16 +2,19 @@ package com.tamalnath.explore;
 
 import android.os.Build;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class BuildFragment extends AbstractFragment {
 
-    private static final Map<String, Object> BUILD = Utils.findConstants(Build.class, null, null);
     private static final Map<String, Object> VERSION = Utils.findConstants(Build.VERSION.class, null, null);
 
-    public BuildFragment() {
+    @Override
+    void refresh() {
+        Map<String, Object> build = Utils.findConstants(Build.class, null, null);
+        build.values().removeAll(Collections.singleton(Build.UNKNOWN));
         adapter.addHeader("Build");
-        adapter.addMap(BUILD);
+        adapter.addMap(build);
         adapter.addHeader("Version");
         adapter.addMap(VERSION);
         adapter.addHeader("Environment variables");
@@ -19,5 +22,4 @@ public class BuildFragment extends AbstractFragment {
         adapter.addHeader("System Properties");
         adapter.addMap(System.getProperties());
     }
-
 }

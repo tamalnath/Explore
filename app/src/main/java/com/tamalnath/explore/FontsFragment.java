@@ -20,15 +20,15 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
 
     private static final String TAG = "FontsFragment";
 
-    private Map<String, Typeface> fonts;
-
     private Switch bold;
     private Switch italic;
     private SeekBar size;
     private EditText sampleText;
 
+    @Override
     @SuppressWarnings("unchecked")
-    public FontsFragment() {
+    void refresh() {
+        Map<String, Typeface> fonts;
         try {
             String fieldName = "sSystemFontMap";
             Field field = Typeface.class.getDeclaredField(fieldName);
@@ -38,11 +38,6 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
             Log.e(TAG, e.getMessage(), e);
             fonts = Utils.findConstants(Typeface.class, Typeface.class, null);
         }
-        draw();
-    }
-
-    private void draw() {
-        adapter.list.clear();
         adapter.list.add(this);
 
         final int style = getStyle();
@@ -104,7 +99,7 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        draw();
+        refresh();
     }
 
     @Override
@@ -119,7 +114,7 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        draw();
+        refresh();
     }
 
     @Override
@@ -129,7 +124,7 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        draw();
+        refresh();
     }
 
     @Override
