@@ -86,7 +86,7 @@ final class Utils {
     }
 
     static Map<String, Object> findProperties(Object object) {
-        return findProperties(object, "(?:is|get)(.*)");
+        return findProperties(object, "^(?:is|get)(.*)$");
     }
 
     static Map<String, Object> findProperties(Object object, String regex) {
@@ -115,9 +115,9 @@ final class Utils {
                 Object value = method.invoke(object);
                 map.put(name, value);
             } catch (IllegalAccessException e) {
-                Log.d(TAG, "Method: " + method + " Error: " + e.getMessage());
+                Log.d(TAG, "Method: " + method + " Error: " + e.toString() + " Cause: " + e.getCause());
             } catch (InvocationTargetException e) {
-                Log.e(TAG, "Method: " + method + " Error: " + e.getMessage());
+                Log.e(TAG, "Method: " + method + " Error: " + e.toString() + " Cause: " + e.getCause());
             }
         }
         return map;
@@ -138,7 +138,7 @@ final class Utils {
                 Object value = field.get(object);
                 map.put(field.getName(), value);
             } catch (IllegalAccessException e) {
-                Log.d(TAG, "Field: " + field + " Error: " + e.getMessage());
+                Log.d(TAG, "Field: " + field + " Error: " + e.getMessage() + " Cause: " + e.getCause());
             }
         }
         return map;

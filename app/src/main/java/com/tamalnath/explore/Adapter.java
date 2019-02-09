@@ -101,24 +101,27 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         }
     }
 
-    void addTable(final Map<String, Map<String, Object>> mapOfMaps) {
-        list.add(new Adapter.Decorator() {
+    void addTable(final List<Map<String, Object>> list) {
+        this.list.add(new Adapter.Decorator() {
             @Override
             public void decorate(Adapter.ViewHolder viewHolder) {
                 HorizontalScrollView scroll = (HorizontalScrollView) viewHolder.itemView;
                 TableLayout layout = scroll.findViewById(R.id.table);
                 Set<String> keys = new TreeSet<>();
-                for (Map<String, Object> map : mapOfMaps.values()) {
+                for (Map<String, Object> map : list) {
                     keys.addAll(map.keySet());
                 }
-                TableRow row = new TableRow(layout.getContext());
-                layout.addView(row);
-                row.addView(new TextView(row.getContext()));
-                for (String key : mapOfMaps.keySet()) {
-                    TextView textView = new TextView(row.getContext());
-                    textView.setText(key);
-                    textView.setTypeface(Typeface.DEFAULT_BOLD);
-                    row.addView(textView);
+                TableRow row;
+                if (keys.remove("")) {
+                    row = new TableRow(layout.getContext());
+                    layout.addView(row);
+                    row.addView(new TextView(row.getContext()));
+                    for (Map<String, Object> map : list) {
+                        TextView textView = new TextView(row.getContext());
+                        textView.setText(Utils.toString(map.get("")));
+                        textView.setTypeface(Typeface.DEFAULT_BOLD);
+                        row.addView(textView);
+                    }
                 }
                 for (String key : keys) {
                     row = new TableRow(layout.getContext());
@@ -127,32 +130,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                     textView.setText(key);
                     textView.setTypeface(Typeface.DEFAULT_BOLD);
                     row.addView(textView);
-                    for (Map<String, Object> map : mapOfMaps.values()) {
+                    for (Map<String, Object> map : list) {
                         textView = new TextView(row.getContext());
                         textView.setText(Utils.toString(map.get(key)));
-                        row.addView(textView);
-                    }
-                }
-            }
-
-            @Override
-            public int getViewType() {
-                return R.layout.view_table;
-            }
-        });
-    }
-
-    void addTable(final List<List<Object>> table) {
-        list.add(new Adapter.Decorator() {
-            @Override
-            public void decorate(Adapter.ViewHolder viewHolder) {
-                TableLayout layout = (TableLayout) viewHolder.itemView;
-                for (List<Object> list : table) {
-                    TableRow row = new TableRow(layout.getContext());
-                    layout.addView(row);
-                    for (Object item : list) {
-                        TextView textView = new TextView(row.getContext());
-                        textView.setText(Utils.toString(item));
                         row.addView(textView);
                     }
                 }

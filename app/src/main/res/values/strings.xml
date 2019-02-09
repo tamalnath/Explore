@@ -23,8 +23,22 @@
 
     <string name="sensor_unit_deg">&#176;</string>
 
-    <string name="network_upstream_bandwidth">Bandwidth (upstream)</string>
-    <string name="network_downstream_bandwidth">Bandwidth (downstream)</string>
+    <string name="network_upstream_bandwidth">Upstream Bandwidth</string>
+    <string name="network_downstream_bandwidth">Downstream Bandwidth</string>
     <string name="network_transport">Transport</string>
+    <string name="network_capability">Capability</string>
+    <string name="network_proxy">Proxy</string>
+
+    <string name="telephony_cell_info">Cell Information</string>
+    <string name="telephony_neighboring_cell_info">Neighboring Cells</string>
+    <string name="telephony_arfcn">Absolute RF Channel Number</string>
+    <string name="telephony_bsic">Base Station Identity Code</string>
+    <string name="telephony_cid">Cell Identity</string>
+    <string name="telephony_lac">Location Area Code</string>
+    <string name="telephony_mcc">Mobile Country Code</string>
+    <string name="telephony_mnc">Mobile Network Code</string>
+    <string name="telephony_psc">Primary Scrambling Code</string>
+    <string name="telephony_pci">Physical Cell Id</string>
+    <string name="telephony_tac">Tracking Area Code</string>
 
 </resources>

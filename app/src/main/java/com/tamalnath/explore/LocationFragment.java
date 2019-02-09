@@ -37,16 +37,17 @@ public class LocationFragment extends AbstractFragment implements View.OnClickLi
         }
         adapter.list.clear();
         LocationManager locationManager = (LocationManager) activity.getSystemService(Context.LOCATION_SERVICE);
-        Map<String, Map<String, Object>> mapOfMaps = new TreeMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
         List<String> names = locationManager.getAllProviders();
         for (String name : names) {
             LocationProvider provider = locationManager.getProvider(name);
             Map<String, Object> map = Utils.findProperties(provider, "(?:get|is|has|requires|supports)(.*)");
             Utils.expand(map, "Accuracy", Criteria.class, "ACCURACY_(.+)");
             Utils.expand(map, "PowerRequirement", Criteria.class, "POWER_(.+)");
-            mapOfMaps.put(name, map);
+            map.put("", name);
+            list.add(map);
         }
-        adapter.addTable(mapOfMaps);
+        adapter.addTable(list);
         adapter.addButton(getString(R.string.details), this);
         return super.onCreateView(inflater, container, savedInstanceState);
     }
