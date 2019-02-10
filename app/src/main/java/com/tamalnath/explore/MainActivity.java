@@ -4,9 +4,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -51,11 +51,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            Snackbar.make(viewPager, "Settings selected", Snackbar.LENGTH_SHORT)
-                    .setAction("Action", null).show();
+            Toast.makeText(getApplicationContext(), "Settings selected", Toast.LENGTH_SHORT).show();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -65,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 new GeneralFragment(),
                 new BuildFragment(),
                 new FontsFragment(),
+                new TextAppearanceFragment(),
                 new LocationFragment(),
                 new NetworkFragment(),
                 new TelephonyFragment()

@@ -2,7 +2,9 @@ package com.tamalnath.explore;
 
 import android.os.Build;
 
+import java.text.DateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 
 public class BuildFragment extends AbstractFragment {
@@ -13,6 +15,10 @@ public class BuildFragment extends AbstractFragment {
     void refresh() {
         Map<String, Object> build = Utils.findConstants(Build.class, null, null);
         build.values().removeAll(Collections.singleton(Build.UNKNOWN));
+        Long time = (Long) build.get("TIME");
+        if (time != null) {
+            build.put("TIME", DateFormat.getDateInstance().format(new Date(time)));
+        }
         adapter.addHeader("Build");
         adapter.addMap(build);
         adapter.addHeader("Version");

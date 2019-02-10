@@ -1,24 +1,29 @@
 package com.tamalnath.explore;
 
 import android.graphics.Typeface;
+import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class FontsFragment extends AbstractFragment implements Adapter.Decorator,
-        CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, TextWatcher {
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-    private static final String TAG = "FontsFragment";
+public class FontsFragment extends AbstractFragment implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, TextWatcher {
 
     private Switch bold;
     private Switch italic;
@@ -26,8 +31,28 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
     private EditText sampleText;
 
     @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.card_font_filter, container, false);
+        bold = layout.findViewById(R.id.bold);
+        italic = layout.findViewById(R.id.italic);
+        size = layout.findViewById(R.id.size);
+        sampleText = layout.findViewById(R.id.sample);
+        bold.setOnCheckedChangeListener(this);
+        italic.setOnCheckedChangeListener(this);
+        size.setOnSeekBarChangeListener(this);
+        sampleText.addTextChangedListener(this);
+        RecyclerView recyclerView = layout.findViewById(R.id.recycler_view);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(adapter);
+        refresh();
+        return layout;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     void refresh() {
+        adapter.list.clear();
         Map<String, Typeface> fonts;
         try {
             String fieldName = "sSystemFontMap";
@@ -35,10 +60,9 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
             field.setAccessible(true);
             fonts = new TreeMap((Map<String, Typeface>) field.get(null));
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
             fonts = Utils.findConstants(Typeface.class, Typeface.class, null);
         }
-        adapter.list.add(this);
 
         final int style = getStyle();
         for (final Map.Entry<String, Typeface> entry : fonts.entrySet()) {
@@ -50,16 +74,8 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
                     TextView valueView = holder.itemView.findViewById(R.id.value);
                     keyView.setText(entry.getKey());
                     valueView.setTypeface(Typeface.create(typeface, style));
-                    if (sampleText == null) {
-                        valueView.setText(R.string.font_sample);
-                    } else {
-                        valueView.setText(sampleText.getText());
-                    }
-                    if (size == null) {
-                        valueView.setTextSize(8);
-                    } else {
-                        valueView.setTextSize(size.getProgress() + 8);
-                    }
+                    valueView.setText(sampleText.getText());
+                    valueView.setTextSize(size.getProgress() + 8);
                 }
 
                 @Override
@@ -67,34 +83,14 @@ public class FontsFragment extends AbstractFragment implements Adapter.Decorator
                     return R.layout.view_key_value;
                 }
             });
-            adapter.notifyItemRangeChanged(1, fonts.size());
         }
         adapter.notifyDataSetChanged();
     }
 
     private int getStyle() {
-        int boldStyle = (bold != null && bold.isChecked()) ? 0x1 : 0x0;
-        int italicStyle = (italic != null && italic.isChecked()) ? 0x2 : 0x0;
+        int boldStyle = bold.isChecked() ? 0x1 : 0x0;
+        int italicStyle = italic.isChecked() ? 0x2 : 0x0;
         return boldStyle | italicStyle;
-    }
-
-    @Override
-    public void decorate(Adapter.ViewHolder viewHolder) {
-        View parent = viewHolder.itemView;
-        bold = parent.findViewById(R.id.bold);
-        italic = parent.findViewById(R.id.italic);
-        size = parent.findViewById(R.id.size);
-        sampleText = parent.findViewById(R.id.sample);
-
-        bold.setOnCheckedChangeListener(this);
-        italic.setOnCheckedChangeListener(this);
-        size.setOnSeekBarChangeListener(this);
-        sampleText.addTextChangedListener(this);
-    }
-
-    @Override
-    public int getViewType() {
-        return R.layout.card_font_filter;
     }
 
     @Override
