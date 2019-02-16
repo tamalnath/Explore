@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                 AbstractFragment fragment = (AbstractFragment) sectionsPagerAdapter.getItem(viewPager.getCurrentItem());
                 fragment.adapter.list.clear();
                 fragment.refresh();
+                fragment.adapter.notifyDataSetChanged();
             }
         });
     }

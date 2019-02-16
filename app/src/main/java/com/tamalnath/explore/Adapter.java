@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.HorizontalScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -105,8 +104,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         this.list.add(new Adapter.Decorator() {
             @Override
             public void decorate(Adapter.ViewHolder viewHolder) {
-                HorizontalScrollView scroll = (HorizontalScrollView) viewHolder.itemView;
-                TableLayout layout = scroll.findViewById(R.id.table);
+                TableLayout layout = (TableLayout) viewHolder.itemView;
                 Set<String> keys = new TreeSet<>();
                 for (Map<String, Object> map : list) {
                     keys.addAll(map.keySet());

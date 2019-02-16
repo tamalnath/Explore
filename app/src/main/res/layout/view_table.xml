@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/table"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:scrollbars="horizontal"
+    android:stretchColumns="*">
 
-    <TableLayout
-        android:id="@+id/table"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scrollbars="horizontal"
-        android:stretchColumns="*">
-
-    </TableLayout>
-</HorizontalScrollView>
+</TableLayout>

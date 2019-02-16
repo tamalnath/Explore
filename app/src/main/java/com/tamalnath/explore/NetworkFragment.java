@@ -5,10 +5,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.ProxyInfo;
-import android.os.Build;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class NetworkFragment extends AbstractFragment {
@@ -22,38 +19,40 @@ public class NetworkFragment extends AbstractFragment {
         if (context == null) {
             return;
         }
-        adapter.list.clear();
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        List<Map<String, Object>> list = new ArrayList<>();
-        for (Network network : connectivityManager.getAllNetworks()) {
-            Map<String, Object> map = Utils.findProperties(connectivityManager.getNetworkInfo(network));
-            NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
-            map.put(getString(R.string.network_upstream_bandwidth), (capabilities.getLinkUpstreamBandwidthKbps()/1024) + " MBPS");
-            map.put(getString(R.string.network_downstream_bandwidth), (capabilities.getLinkDownstreamBandwidthKbps()/1024) + " MBPS");
-            StringBuilder transport = new StringBuilder();
-            for (Map.Entry<String, Integer> entry : TRANSPORT.entrySet()) {
-                if (capabilities.hasTransport(entry.getValue())) {
-                    transport.append('\n').append(entry.getKey());
-                }
-            }
-            map.put(getString(R.string.network_transport), transport.substring(1));
-            map.putAll(Utils.findProperties(connectivityManager.getLinkProperties(network)));
-            StringBuilder capability = new StringBuilder();
-            for (Map.Entry<String, Integer> entry : CAPABILITIES.entrySet()) {
-                if (capabilities.hasCapability(entry.getValue())) {
-                    capability.append('\n').append(entry.getKey());
-                }
-            }
-            map.put(getString(R.string.network_capability), capability.substring(1));
-            list.add(map);
+        adapter.addHeader("Connectivity Manager");
+        adapter.addMap(Utils.findProperties(connectivityManager));
+        ProxyInfo proxyInfo = connectivityManager.getDefaultProxy();
+        if (proxyInfo != null) {
+            adapter.addHeader("Proxy");
+            adapter.addMap(Utils.findProperties(proxyInfo));
         }
-        adapter.addTable(list);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            ProxyInfo proxyInfo = connectivityManager.getDefaultProxy();
-            if (proxyInfo != null) {
-                adapter.addHeader(getString(R.string.network_proxy));
-                adapter.addMap(Utils.findProperties(proxyInfo));
+        Network network = connectivityManager.getActiveNetwork();
+        if (network == null) {
+            return;
+        }
+        adapter.addHeader("Active Network");
+        Map<String, Object> map = Utils.findProperties(connectivityManager.getNetworkInfo(network));
+        NetworkCapabilities capabilities = connectivityManager.getNetworkCapabilities(network);
+        map.put("Upstream Bandwidth", (capabilities.getLinkUpstreamBandwidthKbps()/1024) + " MBPS");
+        map.put("Downstream Bandwidth", (capabilities.getLinkDownstreamBandwidthKbps()/1024) + " MBPS");
+        StringBuilder transport = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : TRANSPORT.entrySet()) {
+            if (capabilities.hasTransport(entry.getValue())) {
+                transport.append('\n').append(entry.getKey());
             }
         }
+        map.put("Transport", transport.substring(1));
+        StringBuilder capability = new StringBuilder();
+        for (Map.Entry<String, Integer> entry : CAPABILITIES.entrySet()) {
+            if (capabilities.hasCapability(entry.getValue())) {
+                capability.append('\n').append(entry.getKey());
+            }
+        }
+        map.put("Capabilities", capability.substring(1));
+        adapter.addMap(map);
+
+        adapter.addHeader("Link Properties");
+        adapter.addMap(Utils.findProperties(connectivityManager.getLinkProperties(network)));
     }
 }

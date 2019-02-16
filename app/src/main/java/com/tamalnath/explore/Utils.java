@@ -56,7 +56,7 @@ final class Utils {
     }
 
     static String findConstant(Class<?> classType, Object value, String regex) {
-        Pattern pattern = Pattern.compile(regex);
+        Pattern pattern = regex == null ? null : Pattern.compile(regex);
         for (Field field : classType.getDeclaredFields()) {
             boolean isPublic = Modifier.isPublic(field.getModifiers());
             boolean isStatic = Modifier.isStatic(field.getModifiers());

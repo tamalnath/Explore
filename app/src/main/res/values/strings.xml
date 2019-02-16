@@ -2,32 +2,13 @@
     <string name="app_name">Explore</string>
     <string name="action_settings">Settings</string>
     <string name="permission_denied">Permission %1$s is denied.</string>
-    <string name="details">Details</string>
     <string name="unknown">Unknown</string>
 
     <string name="font_bold">Bold</string>
     <string name="font_italic">Italic</string>
     <string name="font_sample">The quick brown fox jumps over the lazy dog.</string>
 
-    <string name="fragment_battery">Battery</string>
-    <string name="battery_present">Battery Present</string>
-    <string name="battery_status">Battery Status</string>
-    <string name="battery_health">Battery Health</string>
-    <string name="battery_plugged">Battery Plugged</string>
-    <string name="battery_plugged_unplugged">Not Plugged</string>
-    <string name="battery_charge">Battery Charged</string>
-    <string name="battery_voltage">Battery Voltage</string>
-    <string name="battery_temperature">Battery Temperature</string>
-    <string name="battery_technology">Battery Technology</string>
-    <string name="battery_low">Battery Low</string>
-
     <string name="sensor_unit_deg">&#176;</string>
-
-    <string name="network_upstream_bandwidth">Upstream Bandwidth</string>
-    <string name="network_downstream_bandwidth">Downstream Bandwidth</string>
-    <string name="network_transport">Transport</string>
-    <string name="network_capability">Capability</string>
-    <string name="network_proxy">Proxy</string>
 
     <string name="telephony_cell_info">Cell Information</string>
     <string name="telephony_neighboring_cell_info">Neighboring Cells</string>
