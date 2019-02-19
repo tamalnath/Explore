@@ -32,7 +32,7 @@ public class FontsFragment extends AbstractFragment implements CompoundButton.On
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.card_font_filter, container, false);
+        ConstraintLayout layout = (ConstraintLayout) inflater.inflate(R.layout.fragment_fonts, container, false);
         bold = layout.findViewById(R.id.bold);
         italic = layout.findViewById(R.id.italic);
         size = layout.findViewById(R.id.size);

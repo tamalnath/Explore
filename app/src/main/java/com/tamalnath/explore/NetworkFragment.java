@@ -21,7 +21,8 @@ public class NetworkFragment extends AbstractFragment {
         }
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         adapter.addHeader("Connectivity Manager");
-        adapter.addMap(Utils.findProperties(connectivityManager));
+        adapter.addKeyValue("Active Network Metered", connectivityManager.isActiveNetworkMetered());
+        adapter.addKeyValue("Default Network Active", connectivityManager.isDefaultNetworkActive());
         ProxyInfo proxyInfo = connectivityManager.getDefaultProxy();
         if (proxyInfo != null) {
             adapter.addHeader("Proxy");

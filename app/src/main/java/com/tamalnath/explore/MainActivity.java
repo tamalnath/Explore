@@ -67,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 new TextAppearanceFragment(),
                 new LocationFragment(),
                 new NetworkFragment(),
-                new TelephonyFragment()
+                new TelephonyFragment(),
+                new SensorsFragment()
         };
 
         SectionsPagerAdapter(FragmentManager supportFragmentManager) {
