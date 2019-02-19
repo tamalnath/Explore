@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         private AbstractFragment[] fragments = {
                 new GeneralFragment(),
                 new BuildFragment(),
+                new ResourceFragment(),
                 new FontsFragment(),
                 new TextAppearanceFragment(),
                 new LocationFragment(),
