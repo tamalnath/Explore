@@ -3,8 +3,11 @@ package com.tamalnath.explore;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.view.View;
 
 import java.text.DateFormat;
 import java.util.Collections;
@@ -23,6 +26,7 @@ public class BuildFragment extends AbstractFragment {
                 addBatteryDetails(batteryStatus);
             }
         }
+        addResourceDetails();
         Map<String, Object> build = Utils.findConstants(Build.class, null, null);
         build.values().removeAll(Collections.singleton(Build.UNKNOWN));
         Long time = (Long) build.get("TIME");
@@ -86,6 +90,40 @@ public class BuildFragment extends AbstractFragment {
             Boolean low = batteryStatus.getBooleanExtra(BatteryManager.EXTRA_BATTERY_LOW, false);
             adapter.addKeyValue("Battery Low", low);
         }
+    }
+
+    private void addResourceDetails() {
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        Map<String, Object> map = Utils.findFields(configuration);
+        map.putAll(Utils.findProperties(configuration));
+        Utils.expand(map, "LayoutDirection", View.class, "LAYOUT_DIRECTION_(.*)");
+        Utils.expand(map, "hardKeyboardHidden", Configuration.class, "HARDKEYBOARDHIDDEN_(.*)");
+        Utils.expand(map, "keyboard", Configuration.class, "KEYBOARD_(.*)");
+        Utils.expand(map, "keyboardHidden", Configuration.class, "KEYBOARDHIDDEN_(.*)");
+        Utils.expand(map, "navigation", Configuration.class, "NAVIGATION_(.*)");
+        Utils.expand(map, "navigationHidden", Configuration.class, "NAVIGATIONHIDDEN_(.*)");
+        Utils.expand(map, "orientation", Configuration.class, "ORIENTATION_(.*)");
+        int layout = (int) map.remove("screenLayout");
+        String value = Utils.findConstant(Configuration.class, layout & Configuration.SCREENLAYOUT_SIZE_MASK, "SCREENLAYOUT_SIZE_(.*)");
+        map.put("Screen Layout Size", value);
+        value = Utils.findConstant(Configuration.class, layout & Configuration.SCREENLAYOUT_LONG_MASK, "SCREENLAYOUT_LONG_(.*)");
+        map.put("Screen Layout Long", value);
+        value = Utils.findConstant(Configuration.class, layout & Configuration.SCREENLAYOUT_LAYOUTDIR_MASK, "SCREENLAYOUT_LAYOUTDIR_(.*)");
+        map.put("Screen Layout Direction", value);
+        value = Utils.findConstant(Configuration.class, layout & Configuration.SCREENLAYOUT_ROUND_MASK, "SCREENLAYOUT_ROUND_(.*)");
+        map.put("Screen Layout Round", value);
+        Utils.expand(map, "touchscreen", Configuration.class, "TOUCHSCREEN_(.*)");
+        int uiMode = (int) map.remove("uiMode");
+        value = Utils.findConstant(Configuration.class, uiMode & Configuration.UI_MODE_TYPE_MASK, "UI_MODE_TYPE_(.*)");
+        map.put("UI Mode Type", value);
+        value = Utils.findConstant(Configuration.class, uiMode & Configuration.UI_MODE_NIGHT_MASK, "UI_MODE_NIGHT_(.*)");
+        map.put("UI Mode Night", value);
+
+        adapter.addHeader("Resources Configuration");
+        adapter.addMap(map);
+        adapter.addHeader("Resources Display");
+        adapter.addMap(Utils.findFields(resources.getDisplayMetrics()));
     }
 
 }
