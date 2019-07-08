@@ -55,6 +55,9 @@ public class LocationFragment extends AbstractFragment {
     }
 
     private void addLocation(Location location) {
+        if (location == null) {
+            return;
+        }
         Map<String, Object> map = Utils.findProperties(location);
         map.remove("Extras");
         map.remove("ElapsedRealtimeNanos");

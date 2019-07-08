@@ -4,4 +4,5 @@
     android:layout_height="wrap_content"
     android:text="@string/loading"
     android:textAlignment="center"
+    android:textIsSelectable="true"
     android:textAppearance="@style/TextAppearance.AppCompat.Title" />

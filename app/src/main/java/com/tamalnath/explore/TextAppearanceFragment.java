@@ -4,12 +4,7 @@ import android.os.Build;
 import android.view.View;
 import android.widget.TextView;
 
-import java.text.DateFormat;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
-
-import androidx.annotation.RequiresApi;
 
 public class TextAppearanceFragment extends AbstractFragment {
 

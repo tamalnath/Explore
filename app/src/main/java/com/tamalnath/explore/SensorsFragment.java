@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
+import android.hardware.SensorDirectChannel;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.hardware.TriggerEvent;
+import android.hardware.TriggerEventListener;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +20,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.annotation.NonNull;
@@ -26,12 +32,14 @@ import androidx.appcompat.app.AlertDialog;
 
 public class SensorsFragment extends AbstractFragment implements SensorEventListener {
 
+    private static final String TAG = "SensorsFragment";
     private static final int DELAY_MILLIS = 100;
     private static final Map<String, Float> GRAVITY = Utils.findConstants(SensorManager.class, float.class, "GRAVITY_(.+)");
     private static final Map<String, Float> LIGHT = Utils.findConstants(SensorManager.class, float.class, "LIGHT_(.+)");
 
     private SensorManager sensorManager;
     private List<Sensor> sensors;
+    private TriggerListener triggerListener = new TriggerListener();
     private Map<Sensor, Long> sensorUpdateMap = new HashMap<>();
     private Map<Sensor, TextView> sensorValuesMap = new HashMap<>();
 
@@ -61,6 +69,12 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
         }
         sensorManager = (SensorManager) activity.getSystemService(Context.SENSOR_SERVICE);
         sensors = new ArrayList<>(sensorManager.getSensorList(Sensor.TYPE_ALL));
+        Collections.sort(sensors, new Comparator<Sensor>() {
+            @Override
+            public int compare(Sensor s1, Sensor s2) {
+                return s1.getStringType().compareTo(s2.getStringType());
+            }
+        });
         ViewGroup layout = rootView.findViewById(R.id.id_sensors);
         for (Sensor sensor : sensors) {
             LinearLayout linearLayout = new LinearLayout(getContext());
@@ -87,7 +101,18 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
     public void onResume() {
         super.onResume();
         for (Sensor sensor : sensors) {
-            sensorManager.registerListener(this, sensor, 1000 * DELAY_MILLIS);
+            switch (sensor.getReportingMode()) {
+                case Sensor.REPORTING_MODE_CONTINUOUS:
+                case Sensor.REPORTING_MODE_ON_CHANGE:
+                case Sensor.REPORTING_MODE_SPECIAL_TRIGGER:
+                    sensorManager.registerListener(this, sensor, 1000 * DELAY_MILLIS);
+                    break;
+                case Sensor.REPORTING_MODE_ONE_SHOT:
+                    sensorManager.requestTriggerSensor(triggerListener, sensor);
+                    break;
+                default:
+                    Log.i(TAG, "onResume: Unknown Reporting Mode: " + sensor.getReportingMode());
+            }
         }
     }
 
@@ -95,7 +120,18 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
     public void onPause() {
         super.onPause();
         for (Sensor sensor : sensors) {
-            sensorManager.unregisterListener(this, sensor);
+            switch (sensor.getReportingMode()) {
+                case Sensor.REPORTING_MODE_CONTINUOUS:
+                case Sensor.REPORTING_MODE_ON_CHANGE:
+                case Sensor.REPORTING_MODE_SPECIAL_TRIGGER:
+                    sensorManager.unregisterListener(this, sensor);
+                    break;
+                case Sensor.REPORTING_MODE_ONE_SHOT:
+                    sensorManager.cancelTriggerSensor(triggerListener, sensor);
+                    break;
+                default:
+                    Log.i(TAG, "onPause: Unknown Reporting Mode: " + sensor.getReportingMode());
+            }
         }
     }
 
@@ -115,6 +151,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
         float magnitude;
         switch (sensor.getType()) {
             case Sensor.TYPE_ACCELEROMETER:
+            case Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
             case Sensor.TYPE_LINEAR_ACCELERATION:
             case Sensor.TYPE_GRAVITY:
                 magnitude = (float) Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -147,15 +184,19 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
                 value = getString(R.string.sensor_value_unit, event.values[0], unit);
                 value += " (" + findNearest(LIGHT, event.values[0]) + ")";
                 break;
-            case Sensor.TYPE_SIGNIFICANT_MOTION:
-            case Sensor.TYPE_STEP_DETECTOR:
-                value = getString(R.string.sensor_values_no_value, System.currentTimeMillis());
-                break;
             case Sensor.TYPE_STEP_COUNTER:
                 value = getString(R.string.sensor_value_unit, event.values[0], unit);
                 break;
+            case Sensor.TYPE_ROTATION_VECTOR:
+            case Sensor.TYPE_GAME_ROTATION_VECTOR:
+                value = getString(R.string.sensor_values_rotation, v[0], v[1], v[2], v[3]);
+                break;
             default:
-                value = Arrays.toString(v);
+                StringBuilder sb = new StringBuilder();
+                for (float val : v) {
+                    sb.append(String.format(Locale.getDefault(), ", %+.2f", val));
+                }
+                value = sb.substring(1);
         }
         TextView valueView = sensorValuesMap.get(sensor);
         if (valueView != null) {
@@ -172,6 +213,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
     private String getUnit(int sensorType) {
         switch (sensorType) {
             case Sensor.TYPE_ACCELEROMETER:
+            case Sensor.TYPE_ACCELEROMETER_UNCALIBRATED:
             case Sensor.TYPE_LINEAR_ACCELERATION:
             case Sensor.TYPE_GRAVITY:
                 return getString(R.string.sensor_unit_ms2);
@@ -219,7 +261,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
             TextView view;
             view = viewGroup.findViewById(R.id.sensor_id);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                view.setText(sensor.getId());
+                view.setText(String.valueOf(sensor.getId()));
             } else {
                 view.setVisibility(View.GONE);
                 viewGroup.findViewById(R.id.sensor_id_label).setVisibility(View.GONE);
@@ -242,6 +284,15 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
             view.setText(getString(R.string.sensor_event_unit, sensor.getFifoReservedEventCount()));
             view = viewGroup.findViewById(R.id.sensor_max_event);
             view.setText(getString(R.string.sensor_event_unit, sensor.getFifoMaxEventCount()));
+            view = viewGroup.findViewById(R.id.sensor_direct_report_rate);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                view.setText(Utils.findConstant(SensorDirectChannel.class, sensor.getHighestDirectReportRateLevel(), "RATE_(.*)"));
+            } else {
+                view.setVisibility(View.GONE);
+                viewGroup.findViewById(R.id.sensor_direct_report_rate_label).setVisibility(View.GONE);
+            }
+            view = viewGroup.findViewById(R.id.sensor_reporting_mode);
+            view.setText(Utils.findConstant(Sensor.class, sensor.getReportingMode(), "REPORTING_MODE_(.*)"));
             view = viewGroup.findViewById(R.id.sensor_dynamic);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 view.setText(String.valueOf(sensor.isDynamicSensor()));
@@ -268,4 +319,15 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
             }
         }
     }
-}
+
+    class TriggerListener extends TriggerEventListener {
+        public void onTrigger(TriggerEvent event) {
+            Sensor sensor = event.sensor;
+            TextView valueView = sensorValuesMap.get(sensor);
+            if (valueView != null) {
+                String value = getString(R.string.sensor_no_values, event.timestamp);
+                valueView.setText(value);
+            }
+
+        }
+    }}
