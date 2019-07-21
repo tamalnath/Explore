@@ -23,12 +23,26 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class FontsFragment extends AbstractFragment implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, TextWatcher {
+public class FontsFragment extends AbstractFragment implements CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, TextWatcher, View.OnClickListener {
 
     private Switch bold;
     private Switch italic;
     private SeekBar size;
     private EditText sampleText;
+    private Map<String, Typeface> fonts;
+
+    @SuppressWarnings("unchecked")
+    public FontsFragment() {
+        try {
+            String fieldName = "sSystemFontMap";
+            Field field = Typeface.class.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            fonts = new TreeMap((Map<String, Typeface>) field.get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
+            fonts = Utils.findConstants(Typeface.class, Typeface.class, null);
+        }
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -50,20 +64,8 @@ public class FontsFragment extends AbstractFragment implements CompoundButton.On
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     void refresh() {
         adapter.list.clear();
-        Map<String, Typeface> fonts;
-        try {
-            String fieldName = "sSystemFontMap";
-            Field field = Typeface.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-            fonts = new TreeMap((Map<String, Typeface>) field.get(null));
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
-            fonts = Utils.findConstants(Typeface.class, Typeface.class, null);
-        }
-
         final int style = getStyle();
         for (final Map.Entry<String, Typeface> entry : fonts.entrySet()) {
             final Typeface typeface = entry.getValue();
@@ -76,6 +78,7 @@ public class FontsFragment extends AbstractFragment implements CompoundButton.On
                     valueView.setTypeface(Typeface.create(typeface, style));
                     valueView.setText(sampleText.getText());
                     valueView.setTextSize(size.getProgress() + 8);
+                    valueView.setOnClickListener(FontsFragment.this);
                 }
 
                 @Override
@@ -128,4 +131,9 @@ public class FontsFragment extends AbstractFragment implements CompoundButton.On
         // Don't do anything
     }
 
+    @Override
+    public void onClick(View v) {
+        TextView textView = (TextView) v;
+        sampleText.setTypeface(textView.getTypeface());
+    }
 }

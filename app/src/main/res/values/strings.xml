@@ -4,10 +4,13 @@
     <string name="permission_denied">Permission %1$s is denied.</string>
     <string name="unknown">Unknown</string>
     <string name="loading">Loading&#8230;</string>
+    <string name="input_hints">Please enter something&#8230;</string>
 
     <string name="font_bold">Bold</string>
     <string name="font_italic">Italic</string>
     <string name="font_sample">The quick brown fox jumps over the lazy dog.</string>
+
+    <string name="location_update">%1$s location (%2%.2f, %3$.2f)</string>
 
     <string name="telephony_cell_info">Cell Information</string>
     <string name="telephony_neighboring_cell_info">Neighboring Cells</string>

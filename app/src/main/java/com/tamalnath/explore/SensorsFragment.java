@@ -12,12 +12,15 @@ import android.hardware.TriggerEvent;
 import android.hardware.TriggerEventListener;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,12 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-
 public class SensorsFragment extends AbstractFragment implements SensorEventListener {
 
-    private static final String TAG = "SensorsFragment";
     private static final int DELAY_MILLIS = 100;
     private static final Map<String, Float> GRAVITY = Utils.findConstants(SensorManager.class, float.class, "GRAVITY_(.+)");
     private static final Map<String, Float> LIGHT = Utils.findConstants(SensorManager.class, float.class, "LIGHT_(.+)");
@@ -62,7 +61,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_sensors, container, false);
+        View rootView = inflater.inflate(R.layout.nested_scroll_view, container, false);
         Activity activity = getActivity();
         if (activity == null) {
             return rootView;
@@ -75,7 +74,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
                 return s1.getStringType().compareTo(s2.getStringType());
             }
         });
-        ViewGroup layout = rootView.findViewById(R.id.id_sensors);
+        ViewGroup layout = rootView.findViewById(R.id.id_linear_layout);
         for (Sensor sensor : sensors) {
             LinearLayout linearLayout = new LinearLayout(getContext());
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -111,7 +110,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
                     sensorManager.requestTriggerSensor(triggerListener, sensor);
                     break;
                 default:
-                    Log.i(TAG, "onResume: Unknown Reporting Mode: " + sensor.getReportingMode());
+                    Toast.makeText(getContext(), "onResume: Unknown Reporting Mode: " + sensor.getReportingMode(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -130,7 +129,7 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
                     sensorManager.cancelTriggerSensor(triggerListener, sensor);
                     break;
                 default:
-                    Log.i(TAG, "onPause: Unknown Reporting Mode: " + sensor.getReportingMode());
+                    Toast.makeText(getContext(), "onPause: Unknown Reporting Mode: " + sensor.getReportingMode(), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -330,4 +329,5 @@ public class SensorsFragment extends AbstractFragment implements SensorEventList
             }
 
         }
-    }}
+    }
+}
